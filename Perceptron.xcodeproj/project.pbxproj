@@ -12,6 +12,7 @@
 		4A088B3718A3F14C00C2BF5B /* Perceptron.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4A088B3618A3F14C00C2BF5B /* Perceptron.1 */; };
 		4A088B4018A3F34C00C2BF5B /* CHCSVParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A088B3F18A3F34C00C2BF5B /* CHCSVParser.m */; };
 		4A088B4618A3F50D00C2BF5B /* CSVParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A088B4518A3F50D00C2BF5B /* CSVParser.m */; };
+		4A088B4918A42C7A00C2BF5B /* Perceptron.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A088B4818A42C7A00C2BF5B /* Perceptron.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,8 @@
 		4A088B4318A3F39800C2BF5B /* DataSet1.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = DataSet1.csv; sourceTree = "<group>"; };
 		4A088B4418A3F50D00C2BF5B /* CSVParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CSVParser.h; sourceTree = "<group>"; };
 		4A088B4518A3F50D00C2BF5B /* CSVParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CSVParser.m; sourceTree = "<group>"; };
+		4A088B4718A42C7A00C2BF5B /* Perceptron.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Perceptron.h; sourceTree = "<group>"; };
+		4A088B4818A42C7A00C2BF5B /* Perceptron.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Perceptron.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +89,8 @@
 				4A088B3218A3F14C00C2BF5B /* main.m */,
 				4A088B4418A3F50D00C2BF5B /* CSVParser.h */,
 				4A088B4518A3F50D00C2BF5B /* CSVParser.m */,
+				4A088B4718A42C7A00C2BF5B /* Perceptron.h */,
+				4A088B4818A42C7A00C2BF5B /* Perceptron.m */,
 				4A088B3618A3F14C00C2BF5B /* Perceptron.1 */,
 				4A088B3418A3F14C00C2BF5B /* Supporting Files */,
 			);
@@ -164,6 +169,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A088B4018A3F34C00C2BF5B /* CHCSVParser.m in Sources */,
+				4A088B4918A42C7A00C2BF5B /* Perceptron.m in Sources */,
 				4A088B4618A3F50D00C2BF5B /* CSVParser.m in Sources */,
 				4A088B3318A3F14C00C2BF5B /* main.m in Sources */,
 			);
