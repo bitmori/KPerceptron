@@ -45,18 +45,18 @@
 */
     NSLog(@"%@", @"Conduct training now.");
     NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-    float err = 0;
+    NSInteger err = 0;
     NSMutableArray* delta_w = nil;
     const NSUInteger error_free_count = [self.dataSet1 count];
-    NSUInteger curr_error_count = 0;
+    NSUInteger curr_error_free_count = 0;
     NSUInteger epoch = 0;
     //one epoch is one iteration
-    while (curr_error_count != error_free_count) {
-        curr_error_count = 0;
+    while (curr_error_free_count != error_free_count) {
+        curr_error_free_count = 0;
         for (NSMutableArray* record in self.dataSet1) {
             err = [[record lastObject] integerValue] - [self percepWX:record];
             if (err == 0) {
-                curr_error_count++;
+                curr_error_free_count++;
             }
             delta_w = [self realA:(self.learningRate*err) ProductX:record];
             [self updateWeightWithDelta:delta_w];
@@ -71,8 +71,10 @@
 //        NSLog(@"%f", margin);
         min_margin = MIN(margin, min_margin);
     }
+    float threshold = [self getThreshold:self.dataSet1];
     //NSLog(@"%@", self.dataSet1);
     NSLog(@"The final weights = %@", self.w);
+    NSLog(@"The threshold = %f", threshold);
     NSLog(@"The number of training epochs required = %lu", epoch);
     NSLog(@"The margin = %f", min_margin);
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
@@ -87,14 +89,81 @@
     NSMutableArray* FalsePositives = [[NSMutableArray alloc] init];
     NSUInteger TruePositivesCount = 0;
     NSUInteger TrueNegativesCount = 0;
+    int err = 0;
+    BOOL label = 0;
+    BOOL percept = 0;
     
-    NSLog(@"| True Positives:  %d | False Negatives: %d |", 1, 1);
-    NSLog(@"| False Positives: %d | True Negatives:  %d |", 2, 2);
-    NSLog(@"False Negatives = %@", @[@1, @3, @5]);
-    NSLog(@"False Positives = %@", @[@2, @4, @6]);
+    // testing using ds1
+    for (NSMutableArray* record in self.dataSet1) {
+        label = [[record lastObject] boolValue];
+        percept = [self percepWX:record];
+        err = label - percept;
+        switch (err) {
+            case -1:
+                //FP
+                [FalsePositives addObject:record];
+                break;
+            case 0:
+                if (label) {
+                    //+
+                    TruePositivesCount++;
+                } else {
+                    //-
+                    TrueNegativesCount++;
+                }
+                break;
+            case 1:
+                //FN
+                [FalseNegatives addObject:record];
+                break;
+            default:
+                NSLog(@"ERROR: %@", @"err was assigned an illegal value.");
+                break;
+        }
+    }
+    // testing using ds2
+    for (NSMutableArray* record in self.dataSet2) {
+        label = [[record lastObject] boolValue];
+        percept = [self percepWX:record];
+        err = label - percept;
+        switch (err) {
+            case -1:
+                //FP
+                [FalsePositives addObject:record];
+                break;
+            case 0:
+                if (label) {
+                    //+
+                    TruePositivesCount++;
+                } else {
+                    //-
+                    TrueNegativesCount++;
+                }
+                break;
+            case 1:
+                //FN
+                [FalseNegatives addObject:record];
+                break;
+            default:
+                NSLog(@"ERROR: %@", @"err was assigned an illegal value.");
+                break;
+        }
+    }
+
+    NSLog(@"| True Positives:  %lu | False Negatives: %lu |", (unsigned long)TruePositivesCount, [FalseNegatives count]);
+    NSLog(@"| False Positives: %lu | True Negatives:  %lu |", (unsigned long)[FalsePositives count], TrueNegativesCount);
+    NSLog(@"False Negatives = %@", FalseNegatives);
+    NSLog(@"False Positives = %@", FalsePositives);
+    float loss = 0;
+    for (NSMutableArray* it in FalseNegatives) {
+        loss+=[self getMargin:it];
+    }
+    for (NSMutableArray* it in FalsePositives) {
+        loss+=[self getMargin:it];
+    }
     // this is the loss that the perceptron optimizes
     // = the sum of the distances (all misclassified) from the classifying hyperplane
-    NSLog(@"The total loss summed over the misclassified examples: %d", 120);
+    NSLog(@"The total loss summed over the misclassified examples: %f", loss);
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
     NSLog(@"Testing is over. Time Elpased: %f", (end-start));
 }
@@ -102,11 +171,22 @@
 - (void)doApplying
 {
     NSLog(@"%@", @"Applying perceptron now.");
-    NSLog(@"The result after applying perceptron: %@", @[@1, @1, @1, @1]);
-    NSLog(@"%@", @"Perceptron is over.");
+    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    BOOL percept = NO;
+    for (NSMutableArray* record in self.dataSet3) {
+        percept = [self percepWX:record];
+        NSString * perceptStr = [[NSString alloc] initWithFormat:@"%d", (int)percept];
+        [result addObject:perceptStr];
+    }
+    //The result after applying perceptron: (0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0);
+    NSLog(@"The result after applying perceptron: %@", result);
+    NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
+    NSLog(@"Perceptron is over. Time Elpased: %f", (end-start));
 }
 
-- (NSMutableArray*)realA:(int)a ProductX:(NSMutableArray*)x
+- (NSMutableArray*)realA:(NSInteger)a ProductX:(NSMutableArray*)x
 {
     float t = 0;
     NSMutableArray* dw = [[NSMutableArray alloc] init];
@@ -173,6 +253,17 @@
     float t = ABS([self dotProductWX:x]);
     float b = w_modulus * [self getModulusX:x];
     return (t/b);
+}
+
+- (float)getThreshold:(NSMutableArray*)dataSet
+{
+    float theta = FLT_MAX;
+    float t = 0;
+    for (NSMutableArray* record in dataSet) {
+        t = [self dotProductWX:record];
+        theta = MIN(t, theta);
+    }
+    return theta;
 }
 
 @end

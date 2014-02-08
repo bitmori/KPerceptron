@@ -41,7 +41,7 @@ int main(int argc, const char * argv[])
         NSLog(@"%@", @"All data have been loaded and perceptron is good.");
         [perceptron doTraining];
         [perceptron doTesting];
-        //[perceptron doApplying];
+        [perceptron doApplying];
     }
     return 0;
 }
