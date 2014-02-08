@@ -14,6 +14,8 @@
 @property(strong, nonatomic) NSMutableArray* dataSet1;
 @property(strong, nonatomic) NSMutableArray* dataSet2;
 @property(strong, nonatomic) NSMutableArray* dataSet3;
+@property(strong, nonatomic) NSMutableArray* w;
+@property(assign, nonatomic) int learningRate;
 
 - (id)initWithHeader:(NSMutableArray*)header DataSetOne:(NSMutableArray*)one Two:(NSMutableArray*)two Three:(NSMutableArray*) three;
 - (void)doTraining;

@@ -32,11 +32,14 @@
         self.header = m_currLine;
         //NSLog(@"%@", self.header);
     } else {
-        if ([m_currLine count] < [self.header count]) {
-            NSLog(@"Length of line %lu is %lu, which is too short and won't be considered as a line of record.", recordNumber+1, [m_currLine count]);
-        } else {
+        if ([m_currLine count] >= [self.header count]){
             [self.lines addObject:m_currLine];
         }
+#ifdef DEBUG
+        else {
+            NSLog(@"Length of line %lu is %lu, which is too short and won't be considered as a line of record.", recordNumber+1, [m_currLine count]);
+        }
+#endif
     }
 }
 

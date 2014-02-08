@@ -17,24 +17,31 @@ int main(int argc, const char * argv[])
             [p setRecognizesBackslashesAsEscapes:YES];
             [p setSanitizesFields:YES];
             
-            NSLog(@"encoding: %@", CFStringGetNameOfEncoding(CFStringConvertNSStringEncodingToEncoding(encoding)));
-            
             CSVParser* parserDelegate = [[CSVParser alloc] init];
             [p setDelegate:parserDelegate];
-            
+
+#ifdef DEBUG
+            NSLog(@"encoding: %@", CFStringGetNameOfEncoding(CFStringConvertNSStringEncodingToEncoding(encoding)));
             NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+#endif
             [p parse];
+#ifdef DEBUG
             NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
-            
+#endif
+            #ifdef DEBUG
             NSLog(@"raw difference: %f", (end-start));
             NSLog(@"%lu records have been parsed successfully.", [parserDelegate.lines count]);
+            #endif
             if (i==1) {
                 datasets[0] = parserDelegate.header;
             }
             datasets[i] = parserDelegate.lines;
         }
         Perceptron* perceptron = [[Perceptron alloc] initWithHeader:(NSMutableArray*)datasets[0] DataSetOne:(NSMutableArray*)datasets[1] Two:(NSMutableArray*)datasets[2] Three:(NSMutableArray*)datasets[3]];
+        NSLog(@"%@", @"All data have been loaded and perceptron is good.");
         [perceptron doTraining];
+        [perceptron doTesting];
+        //[perceptron doApplying];
     }
     return 0;
 }
