@@ -20,14 +20,16 @@ int main(int argc, const char * argv[])
             CSVParser* parserDelegate = [[CSVParser alloc] init];
             [p setDelegate:parserDelegate];
 
-#ifdef DEBUG
+            #ifdef DEBUG
             NSLog(@"encoding: %@", CFStringGetNameOfEncoding(CFStringConvertNSStringEncodingToEncoding(encoding)));
             NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
-#endif
+            #endif
+            
             [p parse];
-#ifdef DEBUG
+            
+            #ifdef DEBUG
             NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
-#endif
+            #endif
             #ifdef DEBUG
             NSLog(@"raw difference: %f", (end-start));
             NSLog(@"%lu records have been parsed successfully.", [parserDelegate.lines count]);

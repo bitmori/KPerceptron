@@ -16,6 +16,7 @@
 @property(strong, nonatomic) NSMutableArray* dataSet3;
 @property(strong, nonatomic) NSMutableArray* w;
 @property(assign, nonatomic) NSInteger learningRate;
+@property(assign, nonatomic) float theta;
 
 - (id)initWithHeader:(NSMutableArray*)header DataSetOne:(NSMutableArray*)one Two:(NSMutableArray*)two Three:(NSMutableArray*) three;
 - (void)doTraining;

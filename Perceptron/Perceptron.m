@@ -25,9 +25,9 @@
         self.dataSet3 = three;
         self.w = [[NSMutableArray alloc] init];
         for (NSUInteger i=0; i<[header count]-1; ++i) {
-            self.w[i] = [NSString stringWithFormat:@"%d", 1];
-            //[[NSString alloc] initWithFormat:@"%d", 1];
+            [self.w addObject:[[NSString alloc] initWithFormat:@"%d", 1]];
         }
+        self.theta = 1;
         //NSLog(@"%d", [self.w count]);
         self.learningRate = 1;
         w_modulus = 0;
@@ -59,6 +59,7 @@
                 curr_error_free_count++;
             }
             delta_w = [self realA:(self.learningRate*err) ProductX:record];
+            [self updateThresholdWithErr:err];
             [self updateWeightWithDelta:delta_w];
         }
         epoch++;
@@ -71,10 +72,8 @@
 //        NSLog(@"%f", margin);
         min_margin = MIN(margin, min_margin);
     }
-    float threshold = [self getThreshold:self.dataSet1];
-    //NSLog(@"%@", self.dataSet1);
     NSLog(@"The final weights = %@", self.w);
-    NSLog(@"The threshold = %f", threshold);
+    NSLog(@"The threshold = %f", self.theta);
     NSLog(@"The number of training epochs required = %lu", epoch);
     NSLog(@"The margin = %f", min_margin);
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
@@ -156,10 +155,10 @@
     NSLog(@"False Positives = %@", FalsePositives);
     float loss = 0;
     for (NSMutableArray* it in FalseNegatives) {
-        loss+=[self getMargin:it];
+        loss+=[self getLoss:it withErr:1];
     }
     for (NSMutableArray* it in FalsePositives) {
-        loss+=[self getMargin:it];
+        loss+=[self getLoss:it withErr:-1];
     }
     // this is the loss that the perceptron optimizes
     // = the sum of the distances (all misclassified) from the classifying hyperplane
@@ -192,9 +191,14 @@
     NSMutableArray* dw = [[NSMutableArray alloc] init];
     for (NSUInteger i = 0; i<[x count]-1; ++i) {
         t = a*[x[i] floatValue];
-        dw[i] = [[NSString alloc] initWithFormat:@"%f", t];
+        [dw addObject:[[NSString alloc] initWithFormat:@"%f", t]];
     }
     return dw;
+}
+
+- (void)updateThresholdWithErr:(NSInteger)err
+{
+    self.theta += self.learningRate*err*(-1);
 }
 
 - (void)updateWeightWithDelta:(NSMutableArray*)dw
@@ -218,6 +222,7 @@
         b = [x[i] floatValue];
         r += a*b;
     }
+    r -= self.theta;
     return r;
 }
 
@@ -245,25 +250,23 @@
         a = [it floatValue];
         r += a*a;
     }
+    r += self.theta*self.theta;
     return sqrtf(r);
 }
 
 - (float)getMargin:(NSMutableArray*)x
 {
     float t = ABS([self dotProductWX:x]);
-    float b = w_modulus * [self getModulusX:x];
+    float b = w_modulus;// * [self getModulusX:x];
     return (t/b);
 }
 
-- (float)getThreshold:(NSMutableArray*)dataSet
+- (float)getLoss:(NSMutableArray*)x withErr:(NSInteger)err
 {
-    float theta = FLT_MAX;
-    float t = 0;
-    for (NSMutableArray* record in dataSet) {
-        t = [self dotProductWX:record];
-        theta = MIN(t, theta);
-    }
-    return theta;
+    float loss = ABS([self dotProductWX:x]);
+    loss*=err;
+    loss*=-1;
+    return loss;
 }
 
 @end
