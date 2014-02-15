@@ -14,13 +14,20 @@
 @property(strong, nonatomic) NSMutableArray* dataSet1;
 @property(strong, nonatomic) NSMutableArray* dataSet2;
 @property(strong, nonatomic) NSMutableArray* dataSet3;
+@property(strong, nonatomic) NSMutableArray* dataSet1X;
+@property(strong, nonatomic) NSMutableArray* dataSet2X;
+@property(strong, nonatomic) NSMutableArray* dataSet3X;
 @property(strong, nonatomic) NSMutableArray* w;
+@property(strong, nonatomic) NSMutableArray* maxElement;
 @property(assign, nonatomic) NSInteger learningRate;
 @property(assign, nonatomic) float theta;
 
 - (id)initWithHeader:(NSMutableArray*)header DataSetOne:(NSMutableArray*)one Two:(NSMutableArray*)two Three:(NSMutableArray*) three;
 - (void)doTraining;
+- (void)doTraining2;
 - (void)doTesting;
+- (void)doTesting2;
 - (void)doApplying;
-
+- (void)findMaxElement;
+- (void)normalize;
 @end

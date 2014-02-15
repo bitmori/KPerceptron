@@ -23,9 +23,14 @@
         self.dataSet1 = one;
         self.dataSet2 = two;
         self.dataSet3 = three;
+        self.dataSet1X = [[NSMutableArray alloc] init];
+        self.dataSet2X = [[NSMutableArray alloc] init];
+        self.dataSet3X = [[NSMutableArray alloc] init];
         self.w = [[NSMutableArray alloc] init];
+        self.maxElement = [[NSMutableArray alloc] init];
         for (NSUInteger i=0; i<[header count]-1; ++i) {
             [self.w addObject:[[NSString alloc] initWithFormat:@"%d", 1]];
+            [self.maxElement addObject:[[NSString alloc] initWithFormat:@"%d", 0]];
         }
         self.theta = 1;
         //NSLog(@"%d", [self.w count]);
@@ -35,6 +40,7 @@
     return self;
 }
 
+
 - (void)doTraining
 {
 /*
@@ -43,7 +49,7 @@
         delta_w = alpha* err * x ;
         w = w + delta_w
 */
-    NSLog(@"%@", @"Conduct training now.");
+    NSLog(@"%@", @"Conduct training on DataSet1 now.");
     NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
     NSInteger err = 0;
     NSMutableArray* delta_w = nil;
@@ -77,12 +83,51 @@
     NSLog(@"The number of training epochs required = %lu", epoch);
     NSLog(@"The margin = %f", min_margin);
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
-    NSLog(@"Training is over. Time Elpased: %f", (end-start));
+    NSLog(@"Training on DataSet1 is over. Time Elpased: %f", (end-start));
+}
+
+- (void)doTraining2
+{
+    NSLog(@"%@", @"Conduct training on DataSet2 now.");
+    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+    NSInteger err = 0;
+    NSMutableArray* delta_w = nil;
+    const NSUInteger error_free_count = [self.dataSet2 count];
+    NSUInteger curr_error_free_count = 0;
+    NSUInteger epoch = 0;
+    //one epoch is one iteration
+    while (curr_error_free_count != error_free_count) {
+        curr_error_free_count = 0;
+        for (NSMutableArray* record in self.dataSet2) {
+            err = [[record lastObject] integerValue] - [self percepWX:record];
+            if (err == 0) {
+                curr_error_free_count++;
+            }
+            delta_w = [self realA:(self.learningRate*err) ProductX:record];
+            [self updateThresholdWithErr:err];
+            [self updateWeightWithDelta:delta_w];
+        }
+        epoch++;
+    }
+    w_modulus = [self getModulusW];
+    float min_margin = FLT_MAX;
+    float margin = 0;
+    for (NSMutableArray* record in self.dataSet2) {
+        margin = [self getMargin:record];
+        //        NSLog(@"%f", margin);
+        min_margin = MIN(margin, min_margin);
+    }
+    NSLog(@"The final weights = %@", self.w);
+    NSLog(@"The threshold = %f", self.theta);
+    NSLog(@"The number of training epochs required = %lu", epoch);
+    NSLog(@"The margin = %f", min_margin);
+    NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
+    NSLog(@"Training on DataSet2 is over. Time Elpased: %f", (end-start));
 }
 
 - (void)doTesting
 {
-    NSLog(@"%@", @"Conduct testing now.");
+    NSLog(@"%@", @"Conduct testing on DataSet1 now.");
     NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
     NSMutableArray* FalseNegatives = [[NSMutableArray alloc] init];
     NSMutableArray* FalsePositives = [[NSMutableArray alloc] init];
@@ -94,34 +139,6 @@
     
     // testing using ds1
     for (NSMutableArray* record in self.dataSet1) {
-        label = [[record lastObject] boolValue];
-        percept = [self percepWX:record];
-        err = label - percept;
-        switch (err) {
-            case -1:
-                //FP
-                [FalsePositives addObject:record];
-                break;
-            case 0:
-                if (label) {
-                    //+
-                    TruePositivesCount++;
-                } else {
-                    //-
-                    TrueNegativesCount++;
-                }
-                break;
-            case 1:
-                //FN
-                [FalseNegatives addObject:record];
-                break;
-            default:
-                NSLog(@"ERROR: %@", @"err was assigned an illegal value.");
-                break;
-        }
-    }
-    // testing using ds2
-    for (NSMutableArray* record in self.dataSet2) {
         label = [[record lastObject] boolValue];
         percept = [self percepWX:record];
         err = label - percept;
@@ -164,7 +181,66 @@
     // = the sum of the distances (all misclassified) from the classifying hyperplane
     NSLog(@"The total loss summed over the misclassified examples: %f", loss);
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
-    NSLog(@"Testing is over. Time Elpased: %f", (end-start));
+    NSLog(@"Testing on DataSet1 is over. Time Elpased: %f", (end-start));
+}
+
+- (void)doTesting2
+{
+    NSLog(@"%@", @"Conduct testing on DataSet2 now.");
+    NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
+    NSMutableArray* FalseNegatives = [[NSMutableArray alloc] init];
+    NSMutableArray* FalsePositives = [[NSMutableArray alloc] init];
+    NSUInteger TruePositivesCount = 0;
+    NSUInteger TrueNegativesCount = 0;
+    int err = 0;
+    BOOL label = 0;
+    BOOL percept = 0;
+    
+    // testing using ds2
+    for (NSMutableArray* record in self.dataSet2) {
+        label = [[record lastObject] boolValue];
+        percept = [self percepWX:record];
+        err = label - percept;
+        switch (err) {
+            case -1:
+                //FP
+                [FalsePositives addObject:record];
+                break;
+            case 0:
+                if (label) {
+                    //+
+                    TruePositivesCount++;
+                } else {
+                    //-
+                    TrueNegativesCount++;
+                }
+                break;
+            case 1:
+                //FN
+                [FalseNegatives addObject:record];
+                break;
+            default:
+                NSLog(@"ERROR: %@", @"err was assigned an illegal value.");
+                break;
+        }
+    }
+    
+    NSLog(@"| True Positives:  %lu | False Negatives: %lu |", (unsigned long)TruePositivesCount, [FalseNegatives count]);
+    NSLog(@"| False Positives: %lu | True Negatives:  %lu |", (unsigned long)[FalsePositives count], TrueNegativesCount);
+    NSLog(@"False Negatives = %@", FalseNegatives);
+    NSLog(@"False Positives = %@", FalsePositives);
+    float loss = 0;
+    for (NSMutableArray* it in FalseNegatives) {
+        loss+=[self getLoss:it withErr:1];
+    }
+    for (NSMutableArray* it in FalsePositives) {
+        loss+=[self getLoss:it withErr:-1];
+    }
+    // this is the loss that the perceptron optimizes
+    // = the sum of the distances (all misclassified) from the classifying hyperplane
+    NSLog(@"The total loss summed over the misclassified examples: %f", loss);
+    NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
+    NSLog(@"Testing on DataSet2 is over. Time Elpased: %f", (end-start));
 }
 
 - (void)doApplying
@@ -183,6 +259,53 @@
     NSLog(@"The result after applying perceptron: %@", result);
     NSTimeInterval end = [NSDate timeIntervalSinceReferenceDate];
     NSLog(@"Perceptron is over. Time Elpased: %f", (end-start));
+}
+
+- (void)findMaxElement
+{
+    float elem = 0;
+    float rec = 0;
+    for (NSMutableArray* record in self.dataSet2) {
+        for (NSUInteger i=0; i<[self.maxElement count]; i++) {
+            elem = [self.maxElement[i] floatValue];
+            rec = ABS([record[i] floatValue]);
+            if (elem<rec) {
+                self.maxElement[i] = [[NSString alloc] initWithFormat:@"%f", rec];
+            }
+        }
+    }
+}
+
+- (void)normalize
+{
+    float value = 0;
+    for (NSMutableArray* record in self.dataSet1) {
+        NSMutableArray* nor = [[NSMutableArray alloc] init];
+        for (NSUInteger i=0; i<[self.maxElement count]; i++) {
+            value = [record[i] floatValue];
+            value /= [self.maxElement[i] floatValue];
+            [nor addObject:[[NSString alloc] initWithFormat:@"%f", value]];
+        }
+        [self.dataSet1X addObject:nor];
+    }
+    for (NSMutableArray* record in self.dataSet2) {
+        NSMutableArray* nor = [[NSMutableArray alloc] init];
+        for (NSUInteger i=0; i<[self.maxElement count]; i++) {
+            value = [record[i] floatValue];
+            value /= [self.maxElement[i] floatValue];
+            [nor addObject:[[NSString alloc] initWithFormat:@"%f", value]];
+        }
+        [self.dataSet2X addObject:nor];
+    }
+    for (NSMutableArray* record in self.dataSet3) {
+        NSMutableArray* nor = [[NSMutableArray alloc] init];
+        for (NSUInteger i=0; i<[self.maxElement count]; i++) {
+            value = [record[i] floatValue];
+            value /= [self.maxElement[i] floatValue];
+            [nor addObject:[[NSString alloc] initWithFormat:@"%f", value]];
+        }
+        [self.dataSet3X addObject:nor];
+    }
 }
 
 - (NSMutableArray*)realA:(NSInteger)a ProductX:(NSMutableArray*)x
