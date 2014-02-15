@@ -26,6 +26,9 @@
         self.dataSet1X = [[NSMutableArray alloc] init];
         self.dataSet2X = [[NSMutableArray alloc] init];
         self.dataSet3X = [[NSMutableArray alloc] init];
+        self.dataSet4 = [[NSMutableArray alloc] initWithArray:two copyItems:YES];//deep copy
+        self.dataSet5 = [[NSMutableArray alloc] initWithArray:two copyItems:YES];//deep copy
+        self.dataSet6 = [[NSMutableArray alloc] initWithArray:two copyItems:YES];//deep copy
         self.w = [[NSMutableArray alloc] init];
         self.maxElement = [[NSMutableArray alloc] init];
         for (NSUInteger i=0; i<[header count]-1; ++i) {
@@ -68,6 +71,44 @@
             NSLog(@"====================================================================");
             NSLog(@"Applying perceptron on DataSet %d now.", 3);
             [self doApplying:self.dataSet3];
+            break;
+        case 3:
+            //70, 1, 4, 170, 407, 1, 2, 194, 1, 4, 3, 3, 7
+            NSLog(@"Conduct normalizing now.");
+            [self findMaxElement];
+            [self normalize];
+            NSLog(@"Normalization is over now. All normalized vectors are go.");
+            NSLog(@"Conduct training on DataSet %dX now.", 1);
+            [self doTraining:self.dataSet1X];
+            NSLog(@"====================================================================");
+            NSLog(@"Conduct testing on DataSet %dX now.", 1);
+            [self doTesting:self.dataSet1X];
+            NSLog(@"====================================================================");
+            NSLog(@"Conduct testing on DataSet %dX now.", 2);
+            [self doTesting:self.dataSet2X];
+            NSLog(@"====================================================================");
+            NSLog(@"Applying perceptron on DataSet %dX now.", 3);
+            [self doApplying:self.dataSet3X];
+            
+//            NSLog(@"Conduct testing on DataSet %d now.", 1);
+//            [self doTesting:self.dataSet1];
+//            NSLog(@"====================================================================");
+            break;
+            
+        case 4:
+            [self doKnuthShufflePermute:self.dataSet4];
+            [self doTraining:self.dataSet4];
+            [self doTesting:self.dataSet1];
+            break;
+        case 5:
+            [self doKnuthShufflePermute:self.dataSet5];
+            [self doTraining:self.dataSet5];
+            [self doTesting:self.dataSet1];
+            break;
+        case 6:
+            [self doKnuthShufflePermute:self.dataSet6];
+            [self doTraining:self.dataSet6];
+            [self doTesting:self.dataSet1];
             break;
     }
 }
@@ -167,7 +208,6 @@
     NSLog(@"Testing is over. Time Elpased: %f", (end-start));
 }
 
-
 - (void)doApplying:(NSMutableArray*)DataSet
 {
     NSTimeInterval start = [NSDate timeIntervalSinceReferenceDate];
@@ -208,6 +248,7 @@
             value /= [self.maxElement[i] floatValue];
             [nor addObject:[[NSString alloc] initWithFormat:@"%f", value]];
         }
+        [nor addObject:[[NSString alloc] initWithFormat:@"%lu", [[record lastObject] integerValue]]];
         [self.dataSet1X addObject:nor];
     }
     for (NSMutableArray* record in self.dataSet2) {
@@ -217,6 +258,7 @@
             value /= [self.maxElement[i] floatValue];
             [nor addObject:[[NSString alloc] initWithFormat:@"%f", value]];
         }
+        [nor addObject:[[NSString alloc] initWithFormat:@"%lu", [[record lastObject] integerValue]]];
         [self.dataSet2X addObject:nor];
     }
     for (NSMutableArray* record in self.dataSet3) {
@@ -226,6 +268,7 @@
             value /= [self.maxElement[i] floatValue];
             [nor addObject:[[NSString alloc] initWithFormat:@"%f", value]];
         }
+        [nor addObject:[[NSString alloc] initWithFormat:@"%lu", [[record lastObject] integerValue]]];
         [self.dataSet3X addObject:nor];
     }
 }
@@ -312,6 +355,14 @@
 - (float)getLoss:(NSMutableArray*)x withErr:(NSInteger)err
 {
     return ABS([self dotProductWX:x])/w_modulus;
+}
+
+- (void)doKnuthShufflePermute:(NSMutableArray*)dataset
+{
+    arc4random_stir();
+    for (uint i=0; i<[dataset count]; i++) {
+        [dataset exchangeObjectAtIndex:i withObjectAtIndex:arc4random_uniform(i)];// this is why i love objective-c.
+    }
 }
 
 @end

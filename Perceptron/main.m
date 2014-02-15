@@ -5,7 +5,7 @@
 int main(int argc, const char * argv[])
 {
     @autoreleasepool {
-        NSUInteger mode = 2;
+        NSUInteger mode = 4;
         NSMutableArray* datasets = [[NSMutableArray alloc] initWithCapacity:4];
         for (int i=1; i<4; ++i) {
             NSString *file = @(__FILE__);
