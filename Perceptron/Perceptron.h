@@ -23,11 +23,10 @@
 @property(assign, nonatomic) float theta;
 
 - (id)initWithHeader:(NSMutableArray*)header DataSetOne:(NSMutableArray*)one Two:(NSMutableArray*)two Three:(NSMutableArray*) three;
-- (void)doTraining;
-- (void)doTraining2;
-- (void)doTesting;
-- (void)doTesting2;
-- (void)doApplying;
+- (void)Execute:(NSUInteger)mode;
+- (void)doTraining:(NSMutableArray*)DataSet;
+- (void)doTesting:(NSMutableArray*)DataSet;
+- (void)doApplying:(NSMutableArray*)DataSet;
 - (void)findMaxElement;
 - (void)normalize;
 @end

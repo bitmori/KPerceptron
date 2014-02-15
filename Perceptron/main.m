@@ -5,7 +5,7 @@
 int main(int argc, const char * argv[])
 {
     @autoreleasepool {
-        NSUInteger mode = 1;
+        NSUInteger mode = 2;
         NSMutableArray* datasets = [[NSMutableArray alloc] initWithCapacity:4];
         for (int i=1; i<4; ++i) {
             NSString *file = @(__FILE__);
@@ -42,18 +42,7 @@ int main(int argc, const char * argv[])
         }
         Perceptron* perceptron = [[Perceptron alloc] initWithHeader:(NSMutableArray*)datasets[0] DataSetOne:(NSMutableArray*)datasets[1] Two:(NSMutableArray*)datasets[2] Three:(NSMutableArray*)datasets[3]];
         NSLog(@"%@", @"All data have been loaded and perceptron is good.");
-        if (mode == 1) {
-            [perceptron doTraining];
-            [perceptron doTesting];
-            [perceptron doTesting2];
-            [perceptron doApplying];
-        } else if (mode == 2){
-            [perceptron doTraining2];
-            [perceptron doTesting2];
-            [perceptron doTesting];
-            [perceptron doApplying];
-        }
-
+        [perceptron Execute:mode];
     }
     return 0;
 }
