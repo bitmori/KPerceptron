@@ -22,8 +22,10 @@
 @property(strong, nonatomic) NSMutableArray* dataSet6;
 @property(strong, nonatomic) NSMutableArray* w;
 @property(strong, nonatomic) NSMutableArray* maxElement;
+@property(strong, nonatomic) NSMutableArray* w_set;
 @property(assign, nonatomic) NSInteger learningRate;
 @property(assign, nonatomic) float theta;
+
 
 - (id)initWithHeader:(NSMutableArray*)header DataSetOne:(NSMutableArray*)one Two:(NSMutableArray*)two Three:(NSMutableArray*) three;
 - (void)Execute:(NSUInteger)mode;

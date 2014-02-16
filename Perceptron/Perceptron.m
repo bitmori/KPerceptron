@@ -30,6 +30,7 @@
         self.dataSet5 = [[NSMutableArray alloc] initWithArray:two copyItems:YES];//deep copy
         self.dataSet6 = [[NSMutableArray alloc] initWithArray:two copyItems:YES];//deep copy
         self.w = [[NSMutableArray alloc] init];
+        self.w_set = [[NSMutableArray alloc] init];
         self.maxElement = [[NSMutableArray alloc] init];
         for (NSUInteger i=0; i<[header count]-1; ++i) {
             [self.w addObject:[[NSString alloc] initWithFormat:@"%d", 0]];
@@ -96,21 +97,43 @@
             break;
             
         case 4:
+            [self doTraining:self.dataSet2];
+            [self doTesting:self.dataSet1];
+            NSMutableArray* old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            [self.w_set addObject:old_w];
+            [self allReset];
             [self doKnuthShufflePermute:self.dataSet4];
             [self doTraining:self.dataSet4];
             [self doTesting:self.dataSet1];
-            break;
-        case 5:
+            old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            [self.w_set addObject:old_w];
+            [self allReset];
             [self doKnuthShufflePermute:self.dataSet5];
             [self doTraining:self.dataSet5];
             [self doTesting:self.dataSet1];
-            break;
-        case 6:
+            old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            [self.w_set addObject:old_w];
+            [self allReset];
             [self doKnuthShufflePermute:self.dataSet6];
             [self doTraining:self.dataSet6];
             [self doTesting:self.dataSet1];
+            old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            [self.w_set addObject:old_w];
+            
             break;
     }
+}
+
+- (void)allReset
+{
+    self.w = [[NSMutableArray alloc] init];
+    //self.maxElement = [[NSMutableArray alloc] init];
+    for (NSUInteger i=0; i<[self.header count]-1; ++i) {
+        [self.w addObject:[[NSString alloc] initWithFormat:@"%d", 0]];
+        //[self.maxElement addObject:[[NSString alloc] initWithFormat:@"%d", 0]];
+    }
+    self.theta = 0;
+    w_modulus = 0;
 }
 
 - (void)doTraining:(NSMutableArray*)DataSet
@@ -359,9 +382,47 @@
 
 - (void)doKnuthShufflePermute:(NSMutableArray*)dataset
 {
-    arc4random_stir();
+    for (uint x=0; x<5; x++) {
     for (uint i=0; i<[dataset count]; i++) {
-        [dataset exchangeObjectAtIndex:i withObjectAtIndex:arc4random_uniform(i)];// this is why i love objective-c.
+        uint j = arc4random_uniform(i);
+        [dataset exchangeObjectAtIndex:i withObjectAtIndex:j];// this is why i love objective-c.
+    }
+    }
+}
+
+
+- (NSMutableArray*)normalizeVector:(NSMutableArray*)x
+{
+    float r = 0;
+    float a = 0;
+    NSMutableArray* nx = [[NSMutableArray alloc] init];
+    for (NSString* s in x) {
+        a = [s floatValue];
+        r += a*a;
+    }
+    float norm = sqrtf(r);
+    for (NSString* s in x) {
+        [nx addObject:[[NSString alloc] initWithFormat:@"f", [s floatValue]/norm]];
+    }
+    return nx;
+}
+
+- (NSMutableArray*)averageVector:(NSMutableArray*)set
+{
+    float value = 0;
+    NSMutableArray* nx = [[NSMutableArray alloc] initWithArray:set[0] copyItems:YES];
+    for (NSUInteger i=1; i<[set count]; ++i) {
+        for (NSUInteger j=0; j<[set[i] count]; ++j) {
+            value = [nx[j] floatValue];
+            value+= [set[i][j] floatValue];
+            nx[j] = [[NSString alloc] initWithFormat:@"%f", value];
+        }
+    }
+
+    for (NSUInteger i=0; i<[nx count]; ++i) {
+        value = [nx[i] floatValue];
+        value /=4;
+        nx[i] = [[NSString alloc] initWithFormat:@"%f", value];
     }
 }
 
