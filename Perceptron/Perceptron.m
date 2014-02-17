@@ -77,6 +77,8 @@
             //70, 1, 4, 170, 407, 1, 2, 194, 1, 4, 3, 3, 7
             NSLog(@"Conduct normalizing now.");
             [self findMaxElement];
+            NSLog(@"Max list: %@", self.maxElement);
+            NSLog(@"====================================================================");
             [self normalize];
             NSLog(@"Normalization is over now. All normalized vectors are go.");
             NSLog(@"Conduct training on DataSet %dX now.", 1);
@@ -90,36 +92,52 @@
             NSLog(@"====================================================================");
             NSLog(@"Applying perceptron on DataSet %dX now.", 3);
             [self doApplying:self.dataSet3X];
-            
-//            NSLog(@"Conduct testing on DataSet %d now.", 1);
-//            [self doTesting:self.dataSet1];
-//            NSLog(@"====================================================================");
+            NSLog(@"Conduct testing on DataSet %d now.", 1);
+            [self doTesting:self.dataSet1];
+            NSLog(@"====================================================================");
             break;
             
         case 4:
             [self doTraining:self.dataSet2];
             [self doTesting:self.dataSet1];
             NSMutableArray* old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            NSMutableArray* avg_theta = [[NSMutableArray alloc] init];
+            [avg_theta addObject:[[NSString alloc] initWithFormat:@"%f", self.theta]];
             [self.w_set addObject:old_w];
+            
             [self allReset];
             [self doKnuthShufflePermute:self.dataSet4];
             [self doTraining:self.dataSet4];
             [self doTesting:self.dataSet1];
             old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            [avg_theta addObject:[[NSString alloc] initWithFormat:@"%f", self.theta]];
             [self.w_set addObject:old_w];
             [self allReset];
             [self doKnuthShufflePermute:self.dataSet5];
             [self doTraining:self.dataSet5];
             [self doTesting:self.dataSet1];
             old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            [avg_theta addObject:[[NSString alloc] initWithFormat:@"%f", self.theta]];
             [self.w_set addObject:old_w];
             [self allReset];
             [self doKnuthShufflePermute:self.dataSet6];
             [self doTraining:self.dataSet6];
             [self doTesting:self.dataSet1];
             old_w = [[NSMutableArray alloc] initWithArray:self.w copyItems:YES];
+            [avg_theta addObject:[[NSString alloc] initWithFormat:@"%f", self.theta]];
             [self.w_set addObject:old_w];
-            
+            [self allReset];
+            NSMutableArray* avg_set = [[NSMutableArray alloc] init];
+            for (NSMutableArray* x in self.w_set) {
+                [avg_set addObject:[self normalizeVector:x]];
+            }
+            self.w = [self averageVector:avg_set];
+            for (NSString* s in avg_theta) {
+                self.theta += [s floatValue];
+            }
+            self.theta /= [avg_theta count];
+            NSLog(@"average W %@", self.w);
+            [self doTesting:self.dataSet1];
             break;
     }
 }
@@ -402,7 +420,7 @@
     }
     float norm = sqrtf(r);
     for (NSString* s in x) {
-        [nx addObject:[[NSString alloc] initWithFormat:@"f", [s floatValue]/norm]];
+        [nx addObject:[[NSString alloc] initWithFormat:@"%f", [s floatValue]/norm]];
     }
     return nx;
 }
@@ -421,9 +439,10 @@
 
     for (NSUInteger i=0; i<[nx count]; ++i) {
         value = [nx[i] floatValue];
-        value /=4;
+        value /= [nx count];
         nx[i] = [[NSString alloc] initWithFormat:@"%f", value];
     }
+    return nx;
 }
 
 @end
